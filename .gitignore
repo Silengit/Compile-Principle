@@ -1,0 +1,6 @@
+Test
+lex.yy.c
+syntax.tab.*
+parser
+test
+settings.json
