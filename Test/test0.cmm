@@ -1,0 +1,9 @@
+struct Test{
+    int a;
+    float b;
+    int c[10][20];
+};
+int main(){
+    int y;
+    int x = y[1][2];
+}
