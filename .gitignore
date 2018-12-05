@@ -1,5 +1,7 @@
 lex.yy.c
 syntax.tab.*
+syntax.output
+*.o
 parser
 test
 settings.json
