@@ -1,4 +1,4 @@
-#include "symboltable.h"
+#include "symtable.h"
 
 void add_symbol(Symbols s)
 {

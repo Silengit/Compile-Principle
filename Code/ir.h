@@ -1,4 +1,4 @@
-#include "symboltable.h"
+#include "symtable.h"
 
 typedef struct Operand_* Operand;
 struct Operand_ {
@@ -35,3 +35,4 @@ void test_constructor();
 void print_intercodeslist();
 void print_internode(struct InterCode ic);
 void scan_ir_tree();
+void file_out(char *filename);

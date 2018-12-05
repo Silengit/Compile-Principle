@@ -5,3 +5,5 @@ syntax.output
 parser
 test
 settings.json
+*.pyc
+*.ir

@@ -52,7 +52,7 @@ void print_internode(struct InterCode ic)
             printf("v%d", ic.u.assign.left->u.var_no);
             break;
         case ADDRESS:
-            printf("*v%d",ic.u.assign.left->u.var_no);
+            printf("*v%d", ic.u.assign.left->u.var_no);
             break;
         default:
             break;
@@ -66,10 +66,10 @@ void print_internode(struct InterCode ic)
             printf("v%d\n", ic.u.assign.right->u.var_no);
             break;
         case ADDRESS:
-            printf("*v%d\n",ic.u.assign.right->u.var_no);
+            printf("*v%d\n", ic.u.assign.right->u.var_no);
             break;
         case CONSTANT:
-            printf("%d\n",ic.u.assign.right->u.value);
+            printf("#%d\n", ic.u.assign.right->u.value);
             break;
         default:
             break;
@@ -91,4 +91,60 @@ void scan_ir_tree()
     init_intercodeslist();
     test_constructor();
     print_intercodeslist();
+    file_out("test.ir");
+}
+
+void file_out(char *filename)
+{
+    FILE *fout = fopen(filename, "wb");
+    struct InterCodes *i = icl.first;
+    fprintf(fout,"FUNCTION main :\n");
+    fprintf(fout,"DEC v0 8\n");
+    while (i != NULL)
+    {
+        struct InterCode ic = icl.first->code;
+        switch (ic.kind)
+        {
+        case ASSIGN:
+            switch (ic.u.assign.left->kind)
+            {
+            case VARIABLE:
+                fprintf(fout,"v%d", ic.u.assign.left->u.var_no);
+                break;
+            case ADDRESS:
+                fprintf(fout,"*v%d", ic.u.assign.left->u.var_no);
+                break;
+            default:
+                break;
+            }
+
+            fprintf(fout, " := ");
+
+            switch (ic.u.assign.right->kind)
+            {
+            case VARIABLE:
+                fprintf(fout, "v%d\n", ic.u.assign.right->u.var_no);
+                break;
+            case ADDRESS:
+                fprintf(fout, "*v%d\n", ic.u.assign.right->u.var_no);
+                break;
+            case CONSTANT:
+                fprintf(fout, "#%d\n", ic.u.assign.right->u.value);
+                break;
+            default:
+                break;
+            }
+            break;
+        case ADD: //TODO;
+            break;
+        case SUB:
+            break;
+        case MUL:
+            break;
+        default:
+            break;
+        }
+        i = i->next;
+    }
+    fclose(fout);
 }
