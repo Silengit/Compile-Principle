@@ -1,3 +1,5 @@
+#ifndef _IRH_
+#define _IRH_
 #include "symtable.h"
 
 typedef struct Operand_ *Operand;
@@ -129,20 +131,34 @@ InterCodes *assign_tmp2ival_constructor(int idx, int value);
 InterCodes *assign_tmp2var_constructor(int t_idx, int v_idx);
 InterCodes *assign_var2tmp_constructor(int v_idx, int t_idx);
 InterCodes *assign_addr2tmp_constructor(int t1_idx, int t2_idx);
+InterCodes *assign_addr2tmpaddr_constructor(int t1_idx, int t2_idx);
 InterCodes *assign_var2tmpaddr_constructor(int v_idx, int t_idx);
 InterCodes *assign_tmp2tmpaddr_constructor(int t1_idx, int t2_idx);
-//InterCodes *assign_tmp2varaddr_constructor(int t_idx, int v_idx);
 InterCodes *plus_constructor(int result_idx, int t1_idx, int t2_idx);
 InterCodes *plus_comstructor_2ndisaddr(int result_idx, int t1_idx, int t2_idx);
 InterCodes *plus_comstructor_1stisaddr(int result_idx, int t1_idx, int t2_idx);
 InterCodes *plus_comstructor_allareaddr(int result_idx, int t1_idx, int t2_idx);
 InterCodes *minus_constructor(int result_idx, int t1_idx, int t2_idx);
+InterCodes *minus_comstructor_2ndisaddr(int result_idx, int t1_idx, int t2_idx);
+InterCodes *minus_comstructor_1stisaddr(int result_idx, int t1_idx, int t2_idx);
+InterCodes *minus_comstructor_allareaddr(int result_idx, int t1_idx, int t2_idx);
 InterCodes *multi_constructor(int result_idx, int t1_idx, int t2_idx);
+InterCodes *multi_comstructor_2ndisaddr(int result_idx, int t1_idx, int t2_idx);
+InterCodes *multi_comstructor_1stisaddr(int result_idx, int t1_idx, int t2_idx);
+InterCodes *multi_comstructor_allareaddr(int result_idx, int t1_idx, int t2_idx);
 InterCodes *multi_constructor_with_constant(int result_idx, int t1_idx, int value);
+InterCodes *div_constructor(int result_idx, int t1_idx, int t2_idx);
+InterCodes *div_comstructor_2ndisaddr(int result_idx, int t1_idx, int t2_idx);
+InterCodes *div_comstructor_1stisaddr(int result_idx, int t1_idx, int t2_idx);
+InterCodes *div_comstructor_allareaddr(int result_idx, int t1_idx, int t2_idx);
 InterCodes *true_label_constructor(int lb_idx);
 InterCodes *code_label_constructor(int t1_idx, int t2_idx, int op_idx, int lb_idx);
+InterCodes *code_label_constructor_2ndisaddr(int t1_idx, int t2_idx, int op_idx, int lb_idx);
+InterCodes *code_label_constructor_1stisaddr(int t1_idx, int t2_idx, int op_idx, int lb_idx);
+InterCodes *code_label_constructor_allareaddr(int t1_idx, int t2_idx, int op_idx, int lb_idx);
 InterCodes *goto_label_constructor(int lb_idx);
 InterCodes *ret_constructor(int t_idx);
+InterCodes *ret_constructor_addr(int t_idx);
 InterCodes *dec_func_constructor(char *f_name);
 InterCodes *call_read_constructor(int t_idx);
 InterCodes *call_func_constructor(int t_idx, char *f_name);
@@ -168,3 +184,5 @@ int get_relop(TreeNode *Relop);
 void translate_Cond(TreeNode *Exp, int label_true, int label_false);
 void translate_Args(TreeNode *Args, struct ArgList *arglist);
 void translate_tree(TreeNode *Node);
+
+#endif

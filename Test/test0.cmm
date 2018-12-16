@@ -1,13 +1,33 @@
+struct Operands
+{
+    int o1;
+    int o2;
+};
+
+int first(struct Operands temp1)
+{
+    return temp1.o1;
+}
+
+int second(struct Operands temp2)
+{
+    return temp2.o2;
+}
+
+int add(struct Operands temp3)
+{
+    return (temp3.o1 + temp3.o2);
+}
+
 int main()
 {
-    int x;
-    int s[5];
-    int i = 0;
-    while(i < 5)
-    {
-        s[i] = i;
-        i = i + 1;
-        write(i);
-    }
+    int n;
+    struct Operands op;
+    op.o1 = 1;
+    op.o2 = 2;
+    n = first(op);
+    write(n);
+    write(second(op));
+    write(add(op));
     return 0;
 }

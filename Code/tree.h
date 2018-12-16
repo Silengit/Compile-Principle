@@ -2,7 +2,7 @@
 #define _TREEH_
 #include <stdio.h>
 #include <string.h>
-#define MAX_NODE_SIZE 200
+#define MAX_NODE_SIZE 1000
 
 enum Type
 {

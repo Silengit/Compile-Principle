@@ -125,6 +125,19 @@ InterCodes *assign_addr2tmp_constructor(int t1_idx, int t2_idx)
     return c;
 }
 
+InterCodes *assign_addr2tmpaddr_constructor(int t1_idx, int t2_idx)
+{
+    struct InterCodes *c = (struct InterCodes *)malloc(sizeof(struct InterCodes));
+    c->code.kind = ASSIGN;
+    Operand l = ope_tmpaddr_constructor(t1_idx);
+    Operand r = ope_tmpaddr_constructor(t2_idx);
+    c->code.u.assign.left = l;
+    c->code.u.assign.right = r;
+    c->next = NULL;
+    c->prev = NULL;
+    return c;
+}
+
 InterCodes *assign_var2tmpaddr_constructor(int v_idx, int t_idx)
 {
     struct InterCodes *c = (struct InterCodes *)malloc(sizeof(struct InterCodes));
@@ -150,19 +163,6 @@ InterCodes *assign_tmp2tmpaddr_constructor(int t1_idx, int t2_idx)
     c->prev = NULL;
     return c;
 }
-
-// InterCodes *assign_tmp2varaddr_constructor(int t_idx, int v_idx) //left is an address
-// {
-//     struct InterCodes *c = (struct InterCodes *)malloc(sizeof(struct InterCodes));
-//     c->code.kind = ASSIGN;
-//     Operand l = ope_tmpaddr_constructor(t_idx);
-//     Operand r = ope_var_constructor(v_idx);
-//     c->code.u.assign.left = l;
-//     c->code.u.assign.right = r;
-//     c->next = NULL;
-//     c->prev = NULL;
-//     return c;
-// }
 
 InterCodes *plus_constructor(int result_idx, int t1_idx, int t2_idx)
 {
@@ -239,12 +239,102 @@ InterCodes *minus_constructor(int result_idx, int t1_idx, int t2_idx)
     return c;
 }
 
+InterCodes *minus_comstructor_2ndisaddr(int result_idx, int t1_idx, int t2_idx)
+{
+    struct InterCodes *c = (struct InterCodes *)malloc(sizeof(struct InterCodes));
+    c->code.kind = SUB;
+    Operand l = ope_tmp_constructor(t1_idx);
+    Operand r = ope_tmpaddr_constructor(t2_idx);
+    Operand result = ope_tmp_constructor(result_idx);
+    c->code.u.binop.result = result;
+    c->code.u.binop.op1 = l;
+    c->code.u.binop.op2 = r;
+    c->next = NULL;
+    c->prev = NULL;
+    return c;
+}
+
+InterCodes *minus_comstructor_1stisaddr(int result_idx, int t1_idx, int t2_idx)
+{
+    struct InterCodes *c = (struct InterCodes *)malloc(sizeof(struct InterCodes));
+    c->code.kind = SUB;
+    Operand l = ope_tmpaddr_constructor(t1_idx);
+    Operand r = ope_tmp_constructor(t2_idx);
+    Operand result = ope_tmp_constructor(result_idx);
+    c->code.u.binop.result = result;
+    c->code.u.binop.op1 = l;
+    c->code.u.binop.op2 = r;
+    c->next = NULL;
+    c->prev = NULL;
+    return c;
+}
+
+InterCodes *minus_comstructor_allareaddr(int result_idx, int t1_idx, int t2_idx)
+{
+    struct InterCodes *c = (struct InterCodes *)malloc(sizeof(struct InterCodes));
+    c->code.kind = SUB;
+    Operand l = ope_tmpaddr_constructor(t1_idx);
+    Operand r = ope_tmpaddr_constructor(t2_idx);
+    Operand result = ope_tmp_constructor(result_idx);
+    c->code.u.binop.result = result;
+    c->code.u.binop.op1 = l;
+    c->code.u.binop.op2 = r;
+    c->next = NULL;
+    c->prev = NULL;
+    return c;
+}
+
 InterCodes *multi_constructor(int result_idx, int t1_idx, int t2_idx)
 {
     struct InterCodes *c = (struct InterCodes *)malloc(sizeof(struct InterCodes));
     c->code.kind = MUL;
     Operand l = ope_tmp_constructor(t1_idx);
     Operand r = ope_tmp_constructor(t2_idx);
+    Operand result = ope_tmp_constructor(result_idx);
+    c->code.u.binop.result = result;
+    c->code.u.binop.op1 = l;
+    c->code.u.binop.op2 = r;
+    c->next = NULL;
+    c->prev = NULL;
+    return c;
+}
+
+InterCodes *multi_comstructor_2ndisaddr(int result_idx, int t1_idx, int t2_idx)
+{
+    struct InterCodes *c = (struct InterCodes *)malloc(sizeof(struct InterCodes));
+    c->code.kind = MUL;
+    Operand l = ope_tmp_constructor(t1_idx);
+    Operand r = ope_tmpaddr_constructor(t2_idx);
+    Operand result = ope_tmp_constructor(result_idx);
+    c->code.u.binop.result = result;
+    c->code.u.binop.op1 = l;
+    c->code.u.binop.op2 = r;
+    c->next = NULL;
+    c->prev = NULL;
+    return c;
+}
+
+InterCodes *multi_comstructor_1stisaddr(int result_idx, int t1_idx, int t2_idx)
+{
+    struct InterCodes *c = (struct InterCodes *)malloc(sizeof(struct InterCodes));
+    c->code.kind = MUL;
+    Operand l = ope_tmpaddr_constructor(t1_idx);
+    Operand r = ope_tmp_constructor(t2_idx);
+    Operand result = ope_tmp_constructor(result_idx);
+    c->code.u.binop.result = result;
+    c->code.u.binop.op1 = l;
+    c->code.u.binop.op2 = r;
+    c->next = NULL;
+    c->prev = NULL;
+    return c;
+}
+
+InterCodes *multi_comstructor_allareaddr(int result_idx, int t1_idx, int t2_idx)
+{
+    struct InterCodes *c = (struct InterCodes *)malloc(sizeof(struct InterCodes));
+    c->code.kind = MUL;
+    Operand l = ope_tmpaddr_constructor(t1_idx);
+    Operand r = ope_tmpaddr_constructor(t2_idx);
     Operand result = ope_tmp_constructor(result_idx);
     c->code.u.binop.result = result;
     c->code.u.binop.op1 = l;
@@ -284,6 +374,51 @@ InterCodes *div_constructor(int result_idx, int t1_idx, int t2_idx)
     return c;
 }
 
+InterCodes *div_comstructor_2ndisaddr(int result_idx, int t1_idx, int t2_idx)
+{
+    struct InterCodes *c = (struct InterCodes *)malloc(sizeof(struct InterCodes));
+    c->code.kind = DIV_;
+    Operand l = ope_tmp_constructor(t1_idx);
+    Operand r = ope_tmpaddr_constructor(t2_idx);
+    Operand result = ope_tmp_constructor(result_idx);
+    c->code.u.binop.result = result;
+    c->code.u.binop.op1 = l;
+    c->code.u.binop.op2 = r;
+    c->next = NULL;
+    c->prev = NULL;
+    return c;
+}
+
+InterCodes *div_comstructor_1stisaddr(int result_idx, int t1_idx, int t2_idx)
+{
+    struct InterCodes *c = (struct InterCodes *)malloc(sizeof(struct InterCodes));
+    c->code.kind = DIV_;
+    Operand l = ope_tmpaddr_constructor(t1_idx);
+    Operand r = ope_tmp_constructor(t2_idx);
+    Operand result = ope_tmp_constructor(result_idx);
+    c->code.u.binop.result = result;
+    c->code.u.binop.op1 = l;
+    c->code.u.binop.op2 = r;
+    c->next = NULL;
+    c->prev = NULL;
+    return c;
+}
+
+InterCodes *div_comstructor_allareaddr(int result_idx, int t1_idx, int t2_idx)
+{
+    struct InterCodes *c = (struct InterCodes *)malloc(sizeof(struct InterCodes));
+    c->code.kind = DIV_;
+    Operand l = ope_tmpaddr_constructor(t1_idx);
+    Operand r = ope_tmpaddr_constructor(t2_idx);
+    Operand result = ope_tmp_constructor(result_idx);
+    c->code.u.binop.result = result;
+    c->code.u.binop.op1 = l;
+    c->code.u.binop.op2 = r;
+    c->next = NULL;
+    c->prev = NULL;
+    return c;
+}
+
 InterCodes *true_label_constructor(int lb_idx)
 {
     struct InterCodes *c = (struct InterCodes *)malloc(sizeof(struct InterCodes));
@@ -309,6 +444,51 @@ InterCodes *code_label_constructor(int t1_idx, int t2_idx, int op_idx, int lb_id
     return c;
 }
 
+InterCodes *code_label_constructor_2ndisaddr(int t1_idx, int t2_idx, int op_idx, int lb_idx)
+{
+    struct InterCodes *c = (struct InterCodes *)malloc(sizeof(struct InterCodes));
+    c->code.kind = LABEL_CODE;
+    Operand l = ope_tmp_constructor(t1_idx);
+    Operand r = ope_tmpaddr_constructor(t2_idx);
+    c->code.u.if_goto.left = l;
+    c->code.u.if_goto.right = r;
+    c->code.u.if_goto.relop = op_idx;
+    c->code.u.if_goto.lb_idx = lb_idx;
+    c->next = NULL;
+    c->prev = NULL;
+    return c;
+}
+
+InterCodes *code_label_constructor_1stisaddr(int t1_idx, int t2_idx, int op_idx, int lb_idx)
+{
+    struct InterCodes *c = (struct InterCodes *)malloc(sizeof(struct InterCodes));
+    c->code.kind = LABEL_CODE;
+    Operand l = ope_tmpaddr_constructor(t1_idx);
+    Operand r = ope_tmp_constructor(t2_idx);
+    c->code.u.if_goto.left = l;
+    c->code.u.if_goto.right = r;
+    c->code.u.if_goto.relop = op_idx;
+    c->code.u.if_goto.lb_idx = lb_idx;
+    c->next = NULL;
+    c->prev = NULL;
+    return c;
+}
+
+InterCodes *code_label_constructor_allareaddr(int t1_idx, int t2_idx, int op_idx, int lb_idx)
+{
+    struct InterCodes *c = (struct InterCodes *)malloc(sizeof(struct InterCodes));
+    c->code.kind = LABEL_CODE;
+    Operand l = ope_tmpaddr_constructor(t1_idx);
+    Operand r = ope_tmpaddr_constructor(t2_idx);
+    c->code.u.if_goto.left = l;
+    c->code.u.if_goto.right = r;
+    c->code.u.if_goto.relop = op_idx;
+    c->code.u.if_goto.lb_idx = lb_idx;
+    c->next = NULL;
+    c->prev = NULL;
+    return c;
+}
+
 InterCodes *goto_label_constructor(int lb_idx)
 {
     struct InterCodes *c = (struct InterCodes *)malloc(sizeof(struct InterCodes));
@@ -324,6 +504,17 @@ InterCodes *ret_constructor(int t_idx)
     struct InterCodes *c = (struct InterCodes *)malloc(sizeof(struct InterCodes));
     c->code.kind = RETURN_;
     Operand o = ope_tmp_constructor(t_idx);
+    c->code.u.ret.op = o;
+    c->next = NULL;
+    c->prev = NULL;
+    return c;
+}
+
+InterCodes *ret_constructor_addr(int t_idx)
+{
+    struct InterCodes *c = (struct InterCodes *)malloc(sizeof(struct InterCodes));
+    c->code.kind = RETURN_;
+    Operand o = ope_tmpaddr_constructor(t_idx);
     c->code.u.ret.op = o;
     c->next = NULL;
     c->prev = NULL;
@@ -678,8 +869,12 @@ int translate_Exp(TreeNode *Exp, int idx) //idx means place in manual, 0 means N
             int t1_idx = tmp_idx++;
             translate_Exp(Exp->son, t1_idx);
             int t2_idx = tmp_idx++;
-            translate_Exp(Exp->son->sibling->sibling, t2_idx);
-            InterCodes *c = assign_addr2tmp_constructor(t1_idx, t2_idx);
+            int if_addr = translate_Exp(Exp->son->sibling->sibling, t2_idx);
+            InterCodes *c;
+            if(if_addr == 0)
+                c = assign_addr2tmp_constructor(t1_idx, t2_idx);
+            else
+                c = assign_addr2tmpaddr_constructor(t1_idx, t2_idx);
             add_to_icl(c);
         }
         else if (Exp->son->son->sibling != NULL &&
@@ -688,8 +883,12 @@ int translate_Exp(TreeNode *Exp, int idx) //idx means place in manual, 0 means N
             int t1_idx = tmp_idx++;
             translate_Exp(Exp->son, t1_idx);
             int t2_idx = tmp_idx++;
-            translate_Exp(Exp->son->sibling->sibling, t2_idx);
-            InterCodes *c = assign_addr2tmp_constructor(t1_idx, t2_idx);
+            int if_addr =  translate_Exp(Exp->son->sibling->sibling, t2_idx);
+            InterCodes *c;
+            if(if_addr == 0)
+                c= assign_addr2tmp_constructor(t1_idx, t2_idx);
+            else
+                c = assign_addr2tmpaddr_constructor(t1_idx, t2_idx);
             add_to_icl(c);
         }
         return 0;
@@ -718,9 +917,17 @@ int translate_Exp(TreeNode *Exp, int idx) //idx means place in manual, 0 means N
     {
         int t1_idx = tmp_idx++;
         int t2_idx = tmp_idx++;
-        translate_Exp(Exp->son, t1_idx);
-        translate_Exp(Exp->son->sibling->sibling, t2_idx);
-        InterCodes *c = minus_constructor(idx, t1_idx, t2_idx);
+        int if_addr1 = translate_Exp(Exp->son, t1_idx);
+        int if_addr2 = translate_Exp(Exp->son->sibling->sibling, t2_idx);
+        InterCodes *c;
+        if (if_addr1 == 0 && if_addr2 == 0)
+            c = minus_constructor(idx, t1_idx, t2_idx);
+        else if (if_addr1 == 0 && if_addr2 == 1)
+            c = minus_comstructor_2ndisaddr(idx, t1_idx, t2_idx);
+        else if (if_addr1 == 1 && if_addr2 == 0)
+            c = minus_comstructor_1stisaddr(idx, t1_idx, t2_idx);
+        else
+            c = minus_comstructor_allareaddr(idx, t1_idx, t2_idx);
         add_to_icl(c);
         return 0;
     }
@@ -729,20 +936,37 @@ int translate_Exp(TreeNode *Exp, int idx) //idx means place in manual, 0 means N
     {
         int t1_idx = tmp_idx++;
         int t2_idx = tmp_idx++;
-        translate_Exp(Exp->son, t1_idx);
-        translate_Exp(Exp->son->sibling->sibling, t2_idx);
-        InterCodes *c = multi_constructor(idx, t1_idx, t2_idx);
+        int if_addr1 = translate_Exp(Exp->son, t1_idx);
+        int if_addr2 = translate_Exp(Exp->son->sibling->sibling, t2_idx);
+        InterCodes *c;
+        if (if_addr1 == 0 && if_addr2 == 0)
+            c = multi_constructor(idx, t1_idx, t2_idx);
+        else if (if_addr1 == 0 && if_addr2 == 1)
+            c = multi_comstructor_2ndisaddr(idx, t1_idx, t2_idx);
+        else if (if_addr1 == 1 && if_addr2 == 0)
+            c = multi_comstructor_1stisaddr(idx, t1_idx, t2_idx);
+        else
+            c = multi_comstructor_allareaddr(idx, t1_idx, t2_idx);
         add_to_icl(c);
         return 0;
     }
     else if (Exp->son->sibling != NULL &&
              strcmp(Exp->son->sibling->name, "DIV") == 0)
     {
+        //printf("you have come here!\n");
         int t1_idx = tmp_idx++;
         int t2_idx = tmp_idx++;
-        translate_Exp(Exp->son, t1_idx);
-        translate_Exp(Exp->son->sibling->sibling, t2_idx);
-        InterCodes *c = div_constructor(idx, t1_idx, t2_idx);
+        int if_addr1 = translate_Exp(Exp->son, t1_idx);
+        int if_addr2 = translate_Exp(Exp->son->sibling->sibling, t2_idx);
+        InterCodes *c;
+        if (if_addr1 == 0 && if_addr2 == 0)
+            c = div_constructor(idx, t1_idx, t2_idx);
+        else if (if_addr1 == 0 && if_addr2 == 1)
+            c = div_comstructor_2ndisaddr(idx, t1_idx, t2_idx);
+        else if (if_addr1 == 1 && if_addr2 == 0)
+            c = div_comstructor_1stisaddr(idx, t1_idx, t2_idx);
+        else
+            c = div_comstructor_allareaddr(idx, t1_idx, t2_idx);
         add_to_icl(c);
         return 0;
     }
@@ -775,8 +999,12 @@ int translate_Exp(TreeNode *Exp, int idx) //idx means place in manual, 0 means N
         int t2_idx = tmp_idx++;
         InterCodes *c1 = assign_tmp2ival_constructor(t1_idx, 0);
         add_to_icl(c1);
-        translate_Exp(Exp->son->sibling, t2_idx);
-        InterCodes *c2 = minus_constructor(idx, t1_idx, t2_idx);
+        int is_addr = translate_Exp(Exp->son->sibling, t2_idx);
+        InterCodes *c2;
+        if(is_addr == 0)
+            c2 = minus_constructor(idx, t1_idx, t2_idx);
+        else    
+            c2 = minus_comstructor_2ndisaddr(idx, t1_idx, t2_idx);
         add_to_icl(c2);
         return 0;
     }
@@ -1122,8 +1350,12 @@ void translate_Stmt(TreeNode *Stmt)
     else if (strcmp(Stmt->son->name, "RETURN") == 0)
     {
         int t_idx = tmp_idx++;
-        translate_Exp(Stmt->son->sibling, t_idx);
-        InterCodes *c = ret_constructor(t_idx);
+        int if_addr = translate_Exp(Stmt->son->sibling, t_idx);
+        InterCodes *c;
+        if(if_addr == 0)
+            c = ret_constructor(t_idx);
+        else
+            c = ret_constructor_addr(t_idx);
         add_to_icl(c);
     }
     else if (strcmp(Stmt->son->name, "IF") == 0 &&
@@ -1190,10 +1422,18 @@ void translate_Cond(TreeNode *Exp, int label_true, int label_false)
     {
         int t1_idx = tmp_idx++;
         int t2_idx = tmp_idx++;
-        translate_Exp(Exp->son, t1_idx);
-        translate_Exp(Exp->son->sibling->sibling, t2_idx);
+        int if_addr1 = translate_Exp(Exp->son, t1_idx);
+        int if_addr2 = translate_Exp(Exp->son->sibling->sibling, t2_idx);
         int op_idx = get_relop(Exp->son->sibling);
-        InterCodes *c1 = code_label_constructor(t1_idx, t2_idx, op_idx, label_true);
+        InterCodes *c1;
+        if (if_addr1 == 0 && if_addr2 == 0)
+            c1 = code_label_constructor(t1_idx, t2_idx, op_idx, label_true);
+        else if (if_addr1 == 0 && if_addr2 == 1)
+            c1 = code_label_constructor_2ndisaddr(t1_idx, t2_idx, op_idx, label_true);
+        else if (if_addr1 == 1 && if_addr2 == 0)
+            c1 = code_label_constructor_1stisaddr(t1_idx, t2_idx, op_idx, label_true);
+        else
+            c1  = code_label_constructor_allareaddr(t1_idx, t2_idx, op_idx, label_true);
         add_to_icl(c1);
         InterCodes *c2 = goto_label_constructor(label_false);
         add_to_icl(c2);
@@ -1223,11 +1463,15 @@ void translate_Cond(TreeNode *Exp, int label_true, int label_false)
     else
     {
         int t1_idx = tmp_idx++;
-        translate_Exp(Exp, t1_idx);
+        int is_addr = translate_Exp(Exp, t1_idx);
         int t2_idx = tmp_idx++;
         InterCodes *c1 = assign_tmp2ival_constructor(t2_idx, 0);
         add_to_icl(c1);
-        InterCodes *c2 = code_label_constructor(t1_idx, t2_idx, 6, label_true);
+        InterCodes *c2;
+        if(is_addr == 0)
+            c2 = code_label_constructor(t1_idx, t2_idx, 6, label_true);
+        else
+            c2 = code_label_constructor_1stisaddr(t1_idx, t2_idx, 6, label_true);
         add_to_icl(c2);
         InterCodes *c3 = goto_label_constructor(label_false);
         add_to_icl(c3);
@@ -1246,13 +1490,12 @@ void translate_Args(TreeNode *Args, struct ArgList *arglist)
     {
         int t_idx = tmp_idx++;
         int if_addr = translate_Exp(Args->son, t_idx);
-        struct Arg *arg;
         if (if_addr == 1)
         {
             InterCodes *c = assign_tmp2tmpaddr_constructor(t_idx, t_idx);
             add_to_icl(c);
         }
-        arg = (struct Arg *)malloc(sizeof(struct Arg));
+        struct Arg *arg = (struct Arg *)malloc(sizeof(struct Arg));
         arg->value = t_idx;
         arg->next = arglist->head;
         arglist->head = arg;
@@ -1260,7 +1503,12 @@ void translate_Args(TreeNode *Args, struct ArgList *arglist)
     else
     {
         int t_idx = tmp_idx++;
-        translate_Exp(Args->son, t_idx);
+        int if_addr = translate_Exp(Args->son, t_idx);
+        if (if_addr == 1)
+        {
+            InterCodes *c = assign_tmp2tmpaddr_constructor(t_idx, t_idx);
+            add_to_icl(c);
+        }
         struct Arg *arg = (struct Arg *)malloc(sizeof(struct Arg));
         arg->value = t_idx;
         arg->next = arglist->head;

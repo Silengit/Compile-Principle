@@ -3,7 +3,7 @@
 
 #define MAX_SYMBOL_SIZE 100
 #define MAX_STRUCT_SIZE 100
-#define MAX_ARRAY_SIZE 10
+#define MAX_ARRAY_SIZE 100
 
 #include "tree.h"
 #include <stdlib.h>
