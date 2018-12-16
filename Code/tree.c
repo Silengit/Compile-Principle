@@ -61,10 +61,10 @@ TreeNode init_treeNode_ter(const char *name, Value value, Type type, int lineno,
 	x.lineno = lineno;
 	x.column = column;
 	x.length = length;
-	if (type != _VOID)
+	//if (type != _VOID)
 		x.value = value;
-	else
-		x.value.type_int = 0; //make no sense
+	//else
+	//	x.value.type_int = 0; //make no sense
 	x.type = type;
 	x.sibling = NULL;
 	x.son = NULL;

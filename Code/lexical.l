@@ -44,7 +44,20 @@ fdigit ({digit}*\.{digit}+|{digit}+\.)
     return ASSIGNOP;
 }
 ">"|"<"|">="|"<="|"=="|"!=" { 
-    yylval = init_treeNode_ter("RELOP", value_default, _VOID, yylineno, yycolumn, yyleng);
+    Value temp; 
+    if(strcmp(yytext, ">") == 0)
+        temp.type_int = 1;
+    else if(strcmp(yytext, "<") == 0)
+        temp.type_int = 2;
+    else if(strcmp(yytext, ">=") == 0)
+        temp.type_int = 3;
+    else if(strcmp(yytext, "<=") == 0)
+        temp.type_int = 4;
+    else if(strcmp(yytext, "==") == 0)
+        temp.type_int = 5;
+    else
+        temp.type_int = 6;
+    yylval = init_treeNode_ter("RELOP", temp, _VOID, yylineno, yycolumn, yyleng);
     return RELOP; 
 }
 "+" { 

@@ -7,3 +7,4 @@ test
 settings.json
 *.pyc
 *.ir
+*.pdf

@@ -7,6 +7,33 @@ void add_symbol(Symbols s)
     sym_idx++;
 }
 
+void add_read_and_write()
+{
+    Symbols s0; // write's parameter
+    s0.symkind = FIELDVAR;
+    s0.symuni.fieldvar.name = "_parameter_of_write";
+    s0.symuni.fieldvar.tail = NULL;
+    s0.symuni.fieldvar.type.kind = BASIC;
+    s0.symuni.fieldvar.type.u.basic = 1;
+    add_symbol(s0);
+
+    Symbols s1;
+    s1.symkind = FUN;
+    s1.symuni.func.name = "read";
+    s1.symuni.func.args = NULL;
+    s1.symuni.func.ret.kind = BASIC;
+    s1.symuni.func.ret.u.basic = 1;
+    add_symbol(s1);
+
+    Symbols s2;
+    s2.symkind = FUN;
+    s2.symuni.func.name = "write";
+    s2.symuni.func.args = &sym_tbl.symbols[0].symuni.fieldvar;
+    s2.symuni.func.ret.kind = BASIC;
+    s2.symuni.func.ret.u.basic = 0;
+    add_symbol(s2);
+}
+
 void add_struct(Struct s)
 {
     struct_tbl.structs[str_idx] = s;
@@ -83,7 +110,36 @@ void print_symbol(Symbols s)
         }
         break;
     case FIELDVAR:
-        printf("(fieldvar)%s\n", s.symuni.fieldvar.name);
+        printf("(fieldvar)%s: ", s.symuni.fieldvar.name);
+        switch (s.symuni.fieldvar.type.kind)
+        {
+        case BASIC:
+            switch (s.symuni.fieldvar.type.u.basic)
+            {
+            case 0:
+                printf("void\n");
+                break;
+            case 1:
+                printf("int\n");
+                break;
+            case 2:
+                printf("float\n");
+                break;
+            default:
+                perror("print_symbol has an error!\n");
+                break;
+            }
+            break;
+        case ARRAY:
+            printf("array type\n");
+            break;
+        case STRUCTURE:
+            printf("struct type\n");
+            break;
+        default:
+            perror("print_symbol has an error!\n");
+            break;
+        }
         break;
     default:
         perror("print_symbol has an error!\n");
@@ -140,6 +196,7 @@ Symbols init_symbol_func(TreeNode *typeNode, TreeNode *idNode, FieldList args)
             {
                 printf("Error type 17 at Line %d: Undefined structure \"%s\".\n",
                        idNode->lineno, idNode->value.type_charstar);
+                Semantic_Error = 1;
                 return s;
             }
             s.symuni.func.ret.u.structure = firstfield;
@@ -178,8 +235,11 @@ Symbols init_symbol_var(TreeNode *typeNode, TreeNode *idNode, int select)
                     perror("init_symbol_var has an error(grammar)!\n");
                 FieldList flag = look_up_structtbl(typeNode->son->sibling->son->value.type_charstar);
                 if (flag == NULL)
+                {
                     printf("Error type 17 at Line %d: Undefined structure \"%s\".\n",
                            typeNode->lineno, typeNode->son->sibling->son->value.type_charstar);
+                    Semantic_Error = 1;
+                }
                 s.symuni.var.type.u.structure = flag;
             }
             else
@@ -211,8 +271,11 @@ Symbols init_symbol_var(TreeNode *typeNode, TreeNode *idNode, int select)
                     perror("init_symbol_var has an error(grammar)!\n");
                 FieldList flag = look_up_structtbl(typeNode->son->sibling->son->value.type_charstar);
                 if (flag == NULL)
+                {
                     printf("Error type 17 at Line %d: Undefined structure \"%s\".\n",
                            typeNode->lineno, typeNode->son->sibling->son->value.type_charstar);
+                    Semantic_Error = 1;
+                }
                 s.symuni.fieldvar.type.u.structure = flag;
             }
             else
@@ -279,8 +342,11 @@ Symbols init_array(TreeNode *typeNode, TreeNode *idNode, int select)
                         perror("init_symbol_var has an error(grammar)!\n");
                     FieldList flag = look_up_structtbl(typeNode->son->sibling->son->value.type_charstar);
                     if (flag == NULL)
+                    {
                         printf("Error type 17 at Line %d: Undefined structure \"%s\".\n",
                                typeNode->lineno, typeNode->son->sibling->son->value.type_charstar);
+                        Semantic_Error = 1;
+                    }
                     new_sym.symuni.var.type.u.structure = flag;
                 }
                 else
@@ -371,9 +437,12 @@ void handle_extdef(TreeNode *Node)
                                           args);
         flag = look_up_name(newsym.symuni.func.name);
         if (flag != -1)
+        {
             printf("Error type 4 at Line %d: Redefined function \"%s\".\n",
                    funcNode->son->lineno,
                    funcNode->son->value.type_charstar);
+            Semantic_Error = 1;
+        }
         else
             add_symbol(newsym);
 
@@ -416,8 +485,11 @@ void handle_extdef(TreeNode *Node)
                 {
                     Types type = handle_exp_type(stmtNode->son->sibling);
                     if (typecmp(type, &newsym.symuni.func.ret) != 0)
+                    {
                         printf("Error type 8 at Line %d: Type mismatched for return.\n",
                                stmtNode->lineno);
+                        Semantic_Error = 1;
+                    }
                 }
                 if (stmtNode->sibling == NULL)
                     break;
@@ -438,9 +510,12 @@ void handle_extdef(TreeNode *Node)
             Symbols newsym = init_symbol_var(Node->son->son, idNode, 0);
             flag = look_up_name(newsym.symuni.var.name);
             if (flag != -1)
+            {
                 printf("Error type 3 at Line %d: Redefined variable \"%s\".\n",
                        idNode->son->lineno,
                        newsym.symuni.var.name);
+                Semantic_Error = 1;
+            }
             else
                 add_symbol(newsym);
             varNode = varNode->sibling;
@@ -500,6 +575,7 @@ FieldList handle_def(TreeNode *Node, int select)
                     printf("Error type 15 at Line %d: Redefined field \"%s\".\n",
                            varNode->son->son->lineno,
                            newsym.symuni.fieldvar.name);
+                Semantic_Error = 1;
             }
             else
             {
@@ -511,8 +587,11 @@ FieldList handle_def(TreeNode *Node, int select)
                         Types type = handle_exp_type(varNode->son->sibling->sibling);
                         if (type != NULL &&
                             typecmp(type, &sym_tbl.symbols[sym_idx - 1].symuni.var.type) != 0)
+                        {
                             printf("Error type 5 at Line %d: Type mismatched for assignment.\n",
                                    Node->lineno);
+                            Semantic_Error = 1;
+                        }
                     }
                 }
                 else if (select == 1)
@@ -522,6 +601,7 @@ FieldList handle_def(TreeNode *Node, int select)
                         printf("Error type 15 at Line %d: Field \"%s\" initialed in struct or args.\n",
                                varNode->son->son->lineno,
                                varNode->son->son->value.type_charstar);
+                        Semantic_Error = 1;
                     }
                     if (start == NULL)
                     {
@@ -571,9 +651,12 @@ FieldList handle_arg(TreeNode *Node)
             Symbols newsym = init_symbol_var(varNode->son->son, varNode->son->sibling, 1);
             flag = look_up_name(newsym.symuni.fieldvar.name);
             if (flag != -1)
+            {
                 printf("Error type 3 at Line %d: Redefined variable \"%s\".\n",
                        varNode->son->sibling->son->lineno,
                        newsym.symuni.fieldvar.name);
+                Semantic_Error = 1;
+            }
             else
             {
                 add_symbol(newsym);
@@ -620,8 +703,11 @@ void handle_struct(TreeNode *Node)
         Struct s = init_struct(Node->son->sibling->sibling->sibling, Node->son->sibling->son);
         flag = look_up_structtbl(Node->son->sibling->son->value.type_charstar);
         if (flag != NULL)
+        {
             printf("Error type 16 at Line %d: Duplicated name \"%s\".\n",
                    Node->son->lineno, Node->son->sibling->son->value.type_charstar);
+            Semantic_Error = 1;
+        }
         else
             add_struct(s);
     }
@@ -650,6 +736,8 @@ void scan_node(TreeNode *Node)
 void scan_tree(int idx)
 {
     //print_tree(idx);
+    add_read_and_write();
+    Semantic_Error = 0;
     scan_node(&node[idx]);
     //print_all_symbols();
     semantic_check_stmt(&node[idx]);
@@ -800,8 +888,11 @@ void semantic_check_stmt(TreeNode *Node)
                 Types type = handle_exp_type(expNode);
                 if ((type->kind != BASIC || type->u.basic != 1) &&
                     type != NULL)
+                {
                     printf("Error type 0 at Line %d: Condition must be an integer.\n",
                            expNode->lineno);
+                    Semantic_Error = 1;
+                }
             }
         }
         semantic_check_stmt(Node->son);
@@ -820,8 +911,11 @@ Types handle_exp_type(TreeNode *Node) //TODO
     if (Node->son->sibling != NULL && strcmp(Node->son->sibling->name, "ASSIGNOP") == 0)
     {
         if (strcmp(Node->son->son->name, "INT") == 0 || strcmp(Node->son->son->name, "FLOAT") == 0)
+        {
             printf("Error type 6 at Line %d: The left-hand side of an assignment must be a variable.\n",
                    Node->son->lineno);
+            Semantic_Error = 1;
+        }
         Types ltype = handle_exp_type(Node->son);
         // if(ltype != NULL)
         //     printf("assign ltype = %d\n", ltype->kind);
@@ -832,6 +926,7 @@ Types handle_exp_type(TreeNode *Node) //TODO
         {
             printf("Error type 5 at Line %d: Type mismatched for assignment.\n",
                    Node->lineno);
+            Semantic_Error = 1;
         }
         return NULL;
     }
@@ -851,6 +946,7 @@ Types handle_exp_type(TreeNode *Node) //TODO
         {
             printf("Error type 7 at Line %d: Type mismatched for operands.\n",
                    Node->lineno);
+            Semantic_Error = 1;
             return NULL;
         }
         else if (strcmp(Node->son->sibling->name, "RELOP") == 0)
@@ -872,6 +968,7 @@ Types handle_exp_type(TreeNode *Node) //TODO
         {
             printf("Error type 0 at Line %d: Minus must act on INT or FLOAT.\n",
                    Node->lineno);
+            Semantic_Error = 1;
             return NULL;
         }
         return type;
@@ -883,6 +980,7 @@ Types handle_exp_type(TreeNode *Node) //TODO
         {
             printf("Error type 0 at Line %d: Condition must be an integer.\n",
                    Node->lineno);
+            Semantic_Error = 1;
             return NULL;
         }
         return type;
@@ -900,6 +998,7 @@ Types handle_exp_type(TreeNode *Node) //TODO
         {
             printf("Error type 1 at Line %d: Undefined variable \"%s\".\n",
                    Node->lineno, Node->son->value.type_charstar);
+            Semantic_Error = 1;
             return NULL;
         }
         else
@@ -938,19 +1037,23 @@ Types handle_func_in_exp(TreeNode *idNode)
     {
         printf("Error type 2 at Line %d: Undefined function \"%s\".\n",
                idNode->lineno, idNode->value.type_charstar);
+        Semantic_Error = 1;
         return NULL;
     }
     else if (sym_tbl.symbols[idx].symkind != FUN)
     {
         printf("Error type 11 at Line %d: \"%s\" is not a function.\n",
                idNode->lineno, idNode->value.type_charstar);
+        Semantic_Error = 1;
         return NULL;
     }
     else if (strcmp(idNode->sibling->sibling->name, "RP") == 0)
     {
-        if (sym_tbl.symbols[idx].symuni.func.args != NULL)
+        if (sym_tbl.symbols[idx].symuni.func.args != NULL){
             printf("Error type 9 at Line %d: Function \"%s\" is not applicable for arguments.\n",
                    idNode->lineno, idNode->value.type_charstar);
+            Semantic_Error = 1;
+        }
         return &sym_tbl.symbols[idx].symuni.func.ret;
     }
     else
@@ -962,6 +1065,7 @@ Types handle_func_in_exp(TreeNode *idNode)
         {
             printf("Error type 9 at Line %d: Function \"%s\" is not applicable for arguments.\n",
                    idNode->lineno, idNode->value.type_charstar);
+            Semantic_Error = 1;
             return &sym_tbl.symbols[idx].symuni.func.ret;
         }
         while (1)
@@ -972,6 +1076,7 @@ Types handle_func_in_exp(TreeNode *idNode)
             {
                 printf("Error type 9 at Line %d: Function \"%s\" is not applicable for arguments.\n",
                        idNode->lineno, idNode->value.type_charstar);
+                Semantic_Error = 1;
                 break;
             }
             if (arg->tail != NULL && argNode->sibling != NULL)
@@ -983,12 +1088,14 @@ Types handle_func_in_exp(TreeNode *idNode)
             {
                 printf("Error type 9 at Line %d: Function \"%s\" is not applicable for arguments.\n",
                        idNode->lineno, idNode->value.type_charstar);
+                Semantic_Error = 1;
                 break;
             }
             else if (argNode->sibling != NULL)
             {
                 printf("Error type 9 at Line %d: Function \"%s\" is not applicable for arguments.\n",
                        idNode->lineno, idNode->value.type_charstar);
+                Semantic_Error = 1;
                 break;
             }
             else
@@ -1010,6 +1117,7 @@ Types handle_struct_in_exp(TreeNode *expNode)
             {
                 printf("Error type 13 at Line %d: Illegal use of \".\".\n",
                        expNode->lineno);
+                Semantic_Error = 1;
                 return NULL;
             }
             else
@@ -1027,6 +1135,7 @@ Types handle_struct_in_exp(TreeNode *expNode)
                 {
                     printf("Error type 14 at Line %d: Non-existent field \"%s\".\n",
                            expNode->lineno, expNode->son->sibling->sibling->value.type_charstar);
+                    Semantic_Error = 1;
                     return NULL;
                 }
                 return flag;
@@ -1048,6 +1157,7 @@ Types handle_array_in_exp(TreeNode *expNode)
         else
             printf("Error type 12 at Line %d: Exp is not an integer.\n",
                    expNode->lineno);
+        Semantic_Error = 1;
     }
     TreeNode *idNode = expNode->son->son;
     while (idNode->sibling != NULL)
@@ -1057,6 +1167,7 @@ Types handle_array_in_exp(TreeNode *expNode)
     {
         printf("Error type 10 at Line %d: \"%s\" is not an array.\n",
                idNode->lineno, idNode->value.type_charstar);
+        Semantic_Error = 1;
         return NULL;
     }
     return compute_array_type(expNode);

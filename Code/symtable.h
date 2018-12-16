@@ -91,13 +91,16 @@ struct TypeTable_
     Struct structs[MAX_STRUCT_SIZE];
 };
 
-static SymbolTable sym_tbl;
+SymbolTable sym_tbl;
 static int sym_idx = 0;
 static TypeTable struct_tbl;
 static int str_idx = 0;
 extern TreeNode node[MAX_NODE_SIZE];
 
+int Semantic_Error;
+
 void add_symbol(Symbols s);
+void add_read_and_write();
 void add_struct(Struct s);
 void print_symbol(Symbols s);
 void print_all_symbols();

@@ -43,8 +43,11 @@ Program :
     ExtDefList {  
         $$ = init_treeNode_non("Program", @$.first_line, @$.first_column, @$.last_column - @$.first_column);
         int root_idx = add_son($$, $1);
-        if(Lex_Error == 0 && Bison_Error == 0)
-            scan_ir_tree();
+        if(Lex_Error == 0 && Bison_Error == 0){
+            scan_tree(root_idx);
+            if(Semantic_Error == 0)
+                scan_ir_tree(root_idx);
+        }
         //if(Lex_Error == 0 && Bison_Error == 0)
         //    scan_tree(root_idx);
         //if(Lex_Error == 0 && Bison_Error == 0)
