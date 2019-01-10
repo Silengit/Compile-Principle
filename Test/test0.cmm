@@ -4,30 +4,34 @@ struct Operands
     int o2;
 };
 
-int first(struct Operands temp1)
+int swap(struct Operands temp)
 {
-    return temp1.o1;
-}
-
-int second(struct Operands temp2)
-{
-    return temp2.o2;
-}
-
-int add(struct Operands temp3)
-{
-    return (temp3.o1 + temp3.o2);
+    int i = read(), g = i, res = 0;
+    if(temp.o1 == 1){
+        while(g > 0){
+            res = res + g;
+            g = g - 1;
+        }
+        write(res);
+        g = i;
+        res = 1;
+        while(g > 0){
+            res = res * g;
+            g = g - 1;
+        }
+        write(res);
+    }
+    else if(temp.o2 == 2){
+        write(temp.o2 + temp.o1);
+    }
+    return res;
 }
 
 int main()
 {
-    int n;
-    struct Operands op;
-    op.o1 = 1;
-    op.o2 = 2;
-    n = first(op);
-    write(n);
-    write(second(op));
-    write(add(op));
+    struct Operands a;
+    a.o1 = read();
+    a.o2 = read();
+    swap(a);
     return 0;
 }

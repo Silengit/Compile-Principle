@@ -1282,6 +1282,32 @@ void translate_CompSt(TreeNode *CompSt)
                         InterCodes *c = dec_var_constructor(base_size, v_idx);
                         add_to_icl(c);
                     }
+                    else
+                    {
+                        printf("i ");
+                        if(VarDec->sibling!=NULL)
+                        {
+                            int s_idx = look_up_name(ID->value.type_charstar);
+                            int v_idx;
+                            if (ir_sym_idx[s_idx] == 0)
+                            {
+                                v_idx = var_idx++;
+                                ir_sym_idx[s_idx] = v_idx;
+                            }
+                            else
+                            {
+                                v_idx = ir_sym_idx[s_idx];
+                            }
+                            int t1_idx = tmp_idx++;
+                            int if_addr = translate_Exp(VarDec->sibling->sibling, t1_idx);
+                            InterCodes *c1;
+                            if (if_addr == 0)
+                                c1 = assign_var2tmp_constructor(v_idx, t1_idx);
+                            else
+                                c1 = assign_var2tmpaddr_constructor(v_idx, t1_idx);
+                            add_to_icl(c1);
+                        }
+                    }
                     if (Dec->sibling == NULL)
                     {
                         break;
@@ -1289,6 +1315,8 @@ void translate_CompSt(TreeNode *CompSt)
                     else
                     {
                         Dec = Dec->sibling->sibling->son;
+                        VarDec = Dec->son;
+                        ID = VarDec->son;
                     }
                 }
             }
