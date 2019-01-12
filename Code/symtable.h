@@ -1,9 +1,9 @@
 #ifndef _SYMBOLTABLEH_
 #define _SYMBOLTABLEH_
 
-#define MAX_SYMBOL_SIZE 100
-#define MAX_STRUCT_SIZE 100
-#define MAX_ARRAY_SIZE 100
+#define MAX_SYMBOL_SIZE 10000
+#define MAX_STRUCT_SIZE 10000
+#define MAX_ARRAY_SIZE 10000
 
 #include "tree.h"
 #include <stdlib.h>

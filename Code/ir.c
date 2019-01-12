@@ -1054,21 +1054,84 @@ int translate_Exp(TreeNode *Exp, int idx) //idx means place in manual, 0 means N
     }
     else if (Exp->son->sibling != NULL &&
              strcmp(Exp->son->sibling->name, "LB") == 0)
-    {
-        if (strcmp(Exp->son->son->name, "ID") != 0)
+    {//only consider int array
+        int size[MAX_ARRAY_SIZE];
+        TreeNode *ID = Exp->son->son;
+        int dimension = 1;
+        while(strcmp(ID->name, "ID") != 0)
         {
-            printf("TODO\n");
-            return 0;
+            dimension++;
+            ID = ID->son;  
         }
+        //printf("%s's dimension = %d\n", ID->value.type_charstar,dimension);
+        for(int i = 0;i < dimension; i++)
+        {
+            const char *suffix = "[]";
+            char *name = (char *)malloc(sizeof(char) * (strlen(ID->value.type_charstar) + 2 * i + 1));
+            strcpy(name, ID->value.type_charstar);
+            for (int j = 0; j < i; j++)
+                strcat(name, suffix);
+            //printf("%s ",name);
+            int tmps_idx = look_up_name(name);
+            //printf("%d\n", sym_tbl.symbols[tmps_idx].symuni.var.type.u.array.size);
+            size[i] = sym_tbl.symbols[tmps_idx].symuni.var.type.u.array.size;
+            //printf("%d\n", size[i]);
+        }
+        int ctr = dimension;
         int t1_idx = tmp_idx++;
-        translate_Exp(Exp->son->sibling->sibling, t1_idx);
-        InterCodes *c1 = multi_constructor_with_constant(t1_idx, t1_idx, 4);
-        add_to_icl(c1);
+        int t0_idx = tmp_idx++;
+        InterCodes *c_ = assign_tmp2ival_constructor(t1_idx, 0);
+        add_to_icl(c_);
+        while(strcmp(Exp->son->son->name, "ID") != 0)
+        {
+            if(ctr == dimension){
+                translate_Exp(Exp->son->sibling->sibling, t0_idx);
+                InterCodes *c1 = multi_constructor_with_constant(t1_idx, t0_idx, 4);
+                add_to_icl(c1);
+            }
+            else
+            {
+                int base = 4;
+                for(int i = ctr; i< dimension; i++)
+                {
+                    base *= size[i];
+                    //printf("base = %d\n", base);
+                }
+                translate_Exp(Exp->son->sibling->sibling, t0_idx);
+                InterCodes *c0 = multi_constructor_with_constant(t0_idx, t0_idx, base);
+                add_to_icl(c0);
+                InterCodes *c1 = plus_constructor(t1_idx, t1_idx, t0_idx);
+                add_to_icl(c1);
+            }
+            Exp = Exp->son;
+            ctr--;
+        }     
+        int base = 4;
+        for(int i = 1; i< dimension; i++)
+        {
+            base *= size[i];
+            //printf("base = %d\n", base);
+        }
+        translate_Exp(Exp->son->sibling->sibling, t0_idx);
+        InterCodes *c0 = multi_constructor_with_constant(t0_idx, t0_idx, base);
+        add_to_icl(c0);
+        InterCodes *c1 = plus_constructor(t1_idx, t1_idx, t0_idx);
+        add_to_icl(c1); 
         int t2_idx = tmp_idx++;
         int s_idx = look_up_name(Exp->son->son->value.type_charstar);
         int v_idx = ir_sym_idx[s_idx];
-        InterCodes *c2 = refassign_constructor(t2_idx, v_idx);
-        add_to_icl(c2);
+        if (sym_tbl.symbols[s_idx].symkind == VAR)
+        {
+            InterCodes *c2 = refassign_constructor(t2_idx, v_idx);
+            add_to_icl(c2);
+        }
+        else if (sym_tbl.symbols[s_idx].symkind == FIELDVAR)
+        {
+            InterCodes *c2 = assign_tmp2var_constructor(t2_idx, v_idx);
+            add_to_icl(c2);
+        }
+        /*InterCodes *c2 = refassign_constructor(t2_idx, v_idx);
+        add_to_icl(c2);*/
         InterCodes *c3 = plus_constructor(idx, t2_idx, t1_idx);
         add_to_icl(c3);
         return 1;
@@ -1156,7 +1219,7 @@ int compute_array_size(Types type)
 {
     if (type->kind != ARRAY)
     {
-        printf("you should call compute_array_size!\n");
+        printf("you shouldn't call compute_array_size!\n");
         return 0;
     }
 
@@ -1261,13 +1324,27 @@ void translate_CompSt(TreeNode *CompSt)
                     if (strcmp(ID->name, "ID") != 0)
                     {
                         ID = ID->son;
-                        if (strcmp(ID->name, "ID") != 0)
+                        int base_size = 4;
+                        int dimension = 1;
+                        while(strcmp(ID->name, "ID") != 0)
                         {
-                            printf("Cannot translate: Code contains variables of multi-dimensional array type or parameters of array type.\n");
-                            return;
+                            dimension++;
+                            ID = ID->son;  
                         }
-                        Types type = look_up_type(ID->value.type_charstar);
-                        base_size = type->u.array.size * 4;
+                        //printf("%s's dimension = %d\n", ID->value.type_charstar,dimension);
+                        for(int i = 0;i < dimension; i++)
+                        {
+                            const char *suffix = "[]";
+                            char *name = (char *)malloc(sizeof(char) * (strlen(ID->value.type_charstar) + 2 * i + 1));
+                            strcpy(name, ID->value.type_charstar);
+                            for (int j = 0; j < i; j++)
+                                strcat(name, suffix);
+                            //printf("%s ",name);
+                            int tmps_idx = look_up_name(name);
+                            //printf("%d\n", sym_tbl.symbols[tmps_idx].symuni.var.type.u.array.size);
+                            base_size *= sym_tbl.symbols[tmps_idx].symuni.var.type.u.array.size;
+                        }
+                        //printf("base_size = %d\n", base_size);
                         int s_idx = look_up_name(ID->value.type_charstar);
                         int v_idx;
                         if (ir_sym_idx[s_idx] == 0)
@@ -1284,7 +1361,6 @@ void translate_CompSt(TreeNode *CompSt)
                     }
                     else
                     {
-                        printf("i ");
                         if(VarDec->sibling!=NULL)
                         {
                             int s_idx = look_up_name(ID->value.type_charstar);
@@ -1578,8 +1654,26 @@ void translate_tree(TreeNode *Node)
                         add_to_icl(c);
                     }
                     else
-                    {
-                        printf("TODO\n");
+                    {//array
+                        VarDec = VarDec->son;
+                        if(strcmp(VarDec->son->name, "ID") != 0)
+                            printf("TODO\n");
+                        else
+                        {
+                            int s_idx = look_up_name(VarDec->son->value.type_charstar);
+                            int v_idx;
+                            if (ir_sym_idx[s_idx] == 0)
+                            {
+                                v_idx = var_idx++;
+                                ir_sym_idx[s_idx] = v_idx;
+                            }
+                            else
+                            {
+                                v_idx = ir_sym_idx[s_idx];
+                            }
+                            InterCodes *c = param_constructor(v_idx);
+                            add_to_icl(c);
+                        }
                     }
                     if (ParamDec->sibling == NULL)
                         break;
