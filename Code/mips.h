@@ -30,6 +30,7 @@ static int max_frame_size;
 static int reg_idx; //used for clear reg in order
 static int para_ctr; //used for compute number of parameters of function(in callee)
                     //and if larger than 4, consider specially
+static int para_conctr;//used for register not rewriting parameter
 static int arg_ctr; //used for compute number of arguments of function(in caller)
                     //and if larger than 4, consider specially
 

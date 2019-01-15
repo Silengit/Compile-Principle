@@ -7,6 +7,7 @@ void init_all()
     varlist = NULL;
     reg_idx = 8;
     para_ctr = 0;
+    para_conctr = 0;
     arg_ctr = 0;
     init_reg_name();
 }
@@ -124,7 +125,7 @@ int get_reg(Operand op, FILE *f)
     {
         offset += 4;
         v = init_var(name, offset);
-        while(offset > max_frame_size)
+        while(offset > max_frame_size - 4 * para_conctr)
             increase_frame(f);
         //printf("%s\n", name);
         add_to_varlist(v);
@@ -241,7 +242,7 @@ void add_big_var(Operand op, int size, FILE *f)
     sprintf(name + 1, "%d", op->u.var_no);
     offset += size;
     Var v = init_var(name, offset);
-    while(offset > max_frame_size)
+    while(offset > max_frame_size - 4 * para_conctr)
         increase_frame(f);
     add_to_varlist(v);
 }
@@ -905,6 +906,7 @@ void fprint_target_code(struct InterCode ic, FILE *f)
         fprintf(f, "addi $fp, $sp, %d\n", FRAME_SIZE + 8);
 
         para_ctr = compute_para_num(ic.u.fun);//compute para_num;
+        para_conctr = (para_conctr > compute_para_num(ic.u.fun))? para_conctr:compute_para_num(ic.u.fun);
         //printf("you have come here!\npara_ctr: %d\n",para_ctr);
 
         break;
