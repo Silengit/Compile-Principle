@@ -114,9 +114,9 @@ struct ArgList
 //used for judging whether we should give a variable new var_idx
 int ir_sym_idx[MAX_SYMBOL_SIZE];
 
-static struct InterCodesList icl;
+struct InterCodesList icl;
 static int var_idx;
-static int tmp_idx;
+int tmp_idx;
 static int label_idx;
 extern SymbolTable sym_tbl;
 
@@ -124,7 +124,7 @@ void init_intercodeslist();
 Operand ope_var_constructor(int idx);
 Operand ope_tmp_constructor(int idx);
 Operand ope_int_constructor(int value);
-Operand ope_varaddr_constructor(int idx);
+Operand ope_tmpaddr_constructor(int idx);
 //InterCodes* test_constructor();
 InterCodes *assign_var2ival_constructor(int idx, int value);
 InterCodes *assign_tmp2ival_constructor(int idx, int value);

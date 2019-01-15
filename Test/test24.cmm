@@ -1,0 +1,18 @@
+int judge(int x, int y)
+{
+    if(x > y)
+        return x-y;
+    else
+        return x+y;
+}
+
+
+int main()
+{
+    int i, j, result;
+    i = read();
+    j = read();
+    result = judge(i, j);
+    write(result);
+    return 0;
+}

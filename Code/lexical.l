@@ -1,6 +1,6 @@
 %{
 #include "syntax.tab.h"
-#include "ir.h"
+#include "mips.h"
 #define YY_USER_ACTION \
     yylloc.first_line = yylloc.last_line = yylineno; \
     yylloc.first_column = yycolumn; \

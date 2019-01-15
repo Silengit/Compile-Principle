@@ -637,7 +637,7 @@ void fprint_operand(Operand o, FILE *f)
         fprintf(f, "t%d", o->u.tmp_no);
         break;
     case ADDRESS:
-        fprintf(f, "*t%d", o->u.var_no);
+        fprintf(f, "*t%d", o->u.tmp_no);
         break;
     case CONSTANT:
         fprintf(f, "#%d", o->u.value);
@@ -1686,7 +1686,9 @@ void translate_tree(TreeNode *Node)
         }
         else if (strcmp(Node->name, "CompSt") == 0)
         {
-            translate_CompSt(Node);
+            translate_CompSt(Node);//should not translate son
+            translate_tree(Node->sibling);
+            return;
         }
         translate_tree(Node->son);
         translate_tree(Node->sibling);

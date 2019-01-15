@@ -1,4 +1,4 @@
-struct Temp1
+touchstruct Temp1
 {
     int i;
     float j;

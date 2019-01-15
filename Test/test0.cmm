@@ -1,24 +1,32 @@
-struct OP
+int fact(int n)
 {
-    int f;
-};
-
-int fibo(int n)
-{
-    if(n < 2)
-        return 1;
+    if (n == 1)
+        return n;
     else
-        return fibo(n-1) + fibo(n-2); 
+        return (n * fact(n - 1));
+}
+
+int max_2(int z1, int z2)
+{
+    if(z1 > z2)
+        return z1;
+    else
+        return z2;
+}
+
+int max_3(int y1, int y2, int y3)
+{
+    return max_2(max_2(y1, y2), y3);
+}
+
+int max_5(int x1, int x2, int x3, int x4, int x5)
+{
+    return max_2(max_3(x1, x2, x3), max_2(x4, x5));
 }
 
 int main()
 {
-    int i = 0, x;
-    struct OP op;
-    while(i < 10){
-        op.f = fibo(i);
-        write(op.f);
-        i = i+1;
-    }
+    int n1 = read(), n2 = read(), n3 = read(), n4 = read(), n5 = read();
+    write(fact(max_5(n1,n2,n3,n4,n5)));
     return 0;
 }

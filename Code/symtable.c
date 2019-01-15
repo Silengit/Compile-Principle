@@ -418,6 +418,110 @@ Struct init_struct(TreeNode *defList, TreeNode *idNode)
     return s;
 }
 
+void handle_compstmt(TreeNode *CompSt, Symbols ret)
+{
+    //printf("you come here!\n");
+    if(strcmp(CompSt->name, "CompSt") != 0)
+    {
+        printf("you should not call this function!\n");
+        return;
+    }
+    if (strcmp(CompSt->son->sibling->name, "DefList") == 0)
+    {
+        TreeNode *defNode = CompSt->son->sibling->son;
+        while (defNode != NULL)
+        {
+            handle_def(defNode, 0); //handle local variable
+            if (defNode->sibling != NULL)
+                defNode = defNode->sibling->son;
+            else
+                break;
+        }
+    }
+    TreeNode *stmtlistNode = CompSt->son->sibling->sibling;
+    if (stmtlistNode == NULL && (ret.symuni.func.ret.kind != BASIC || ret.symuni.func.ret.u.basic != 0))
+        // printf("Error type 8 at Line %d: Type mismatched for return.\n",
+        //        compstNode->son->sibling->lineno);
+        ;
+    else
+    {   if (strcmp(stmtlistNode->name, "RC") == 0)
+        {
+            if (strcmp(CompSt->son->sibling->name, "StmtList") == 0)
+                stmtlistNode = CompSt->son->sibling;
+            else if (ret.symuni.func.ret.kind != BASIC || ret.symuni.func.ret.u.basic != 0)
+            {
+                // printf("Error type 8 at Line %d: Type mismatched for return.\n",
+                //        stmtlistNode->lineno);
+                return;
+            }
+        }
+        //printf("stmtlistNode: %s\n", stmtlistNode->name);
+        TreeNode *stmtNode = stmtlistNode->son;
+        while (1)
+        {
+            //printf("stmtNode: %s\n", stmtNode->name);
+            //printf("stmtNode->son: %s\n", stmtNode->son->name);
+            // if (strcmp(stmtNode->son->name, "CompSt") == 0)
+            // {
+            //     handle_compstmt(stmtNode->son, ret);
+            // }
+            // else if (strcmp(stmtNode->son->name, "RETURN") == 0)
+            // {
+            //     Types type = handle_exp_type(stmtNode->son->sibling);
+            //     if (typecmp(type, &ret.symuni.func.ret) != 0)
+            //     {
+            //         printf("Error type 8 at Line %d: Type mismatched for return.\n",
+            //                stmtNode->lineno);
+            //         Semantic_Error = 1;
+            //     }
+            // }
+            handle_stmt(stmtNode, ret);
+            if (stmtNode->sibling == NULL)
+                break;
+            else
+                stmtNode = stmtNode->sibling->son;
+        }
+    }
+}
+
+void handle_stmt(TreeNode *Stmt, Symbols ret)
+{
+    if(strcmp(Stmt->name, "Stmt") != 0)
+    {
+        printf("you should not call this function!\n");
+        return;
+    }
+
+    if (strcmp(Stmt->son->name, "CompSt") == 0)
+    {
+        handle_compstmt(Stmt->son, ret);
+    }
+    else if(strcmp(Stmt->son->name, "RETURN") == 0)
+    {
+        Types type = handle_exp_type(Stmt->son->sibling);
+        if (typecmp(type, &ret.symuni.func.ret) != 0)
+        { 
+            printf("Error type 8 at Line %d: Type mismatched for return.\n",
+                    Stmt->lineno);
+            Semantic_Error = 1;
+        }
+    }  
+    else if((strcmp(Stmt->son->name, "IF") == 0) &&
+            Stmt->son->sibling->sibling->sibling->sibling->sibling == NULL)
+    {
+        handle_stmt(Stmt->son->sibling->sibling->sibling->sibling, ret);
+    }
+    else if(strcmp(Stmt->son->name, "IF") == 0)
+    {
+        handle_stmt(Stmt->son->sibling->sibling->sibling->sibling, ret);
+        handle_stmt(Stmt->son->sibling->sibling->sibling->sibling->sibling->sibling, ret);
+    }
+    else if(strcmp(Stmt->son->name, "WHILE") == 0)
+    {
+        handle_stmt(Stmt->son->sibling->sibling->sibling->sibling, ret);
+    }
+}
+
 void handle_extdef(TreeNode *Node)
 {
     if (strcmp(Node->name, "ExtDef") != 0)
@@ -447,56 +551,57 @@ void handle_extdef(TreeNode *Node)
             add_symbol(newsym);
 
         TreeNode *compstNode = Node->son->sibling->sibling;
-        if (strcmp(compstNode->son->sibling->name, "DefList") == 0)
-        {
-            TreeNode *defNode = compstNode->son->sibling->son;
-            while (defNode != NULL)
-            {
-                handle_def(defNode, 0); //handle local variable
-                if (defNode->sibling != NULL)
-                    defNode = defNode->sibling->son;
-                else
-                    break;
-            }
-        }
-        TreeNode *stmtlistNode = compstNode->son->sibling->sibling;
-        if (stmtlistNode == NULL && (newsym.symuni.func.ret.kind != BASIC || newsym.symuni.func.ret.u.basic != 0))
-            // printf("Error type 8 at Line %d: Type mismatched for return.\n",
-            //        compstNode->son->sibling->lineno);
-            ;
-        else
-        {
-            if (strcmp(stmtlistNode->name, "RC") == 0)
-            {
-                if (strcmp(compstNode->son->sibling->name, "StmtList") == 0)
-                    stmtlistNode = compstNode->son->sibling;
-                else if (newsym.symuni.func.ret.kind != BASIC || newsym.symuni.func.ret.u.basic != 0)
-                {
-                    // printf("Error type 8 at Line %d: Type mismatched for return.\n",
-                    //        stmtlistNode->lineno);
-                    return;
-                }
-            }
+        handle_compstmt(compstNode,newsym);
+        // if (strcmp(compstNode->son->sibling->name, "DefList") == 0)
+        // {
+        //     TreeNode *defNode = compstNode->son->sibling->son;
+        //     while (defNode != NULL)
+        //     {
+        //         handle_def(defNode, 0); //handle local variable
+        //         if (defNode->sibling != NULL)
+        //             defNode = defNode->sibling->son;
+        //         else
+        //             break;
+        //     }
+        // }
+        // TreeNode *stmtlistNode = compstNode->son->sibling->sibling;
+        // if (stmtlistNode == NULL && (newsym.symuni.func.ret.kind != BASIC || newsym.symuni.func.ret.u.basic != 0))
+        //     // printf("Error type 8 at Line %d: Type mismatched for return.\n",
+        //     //        compstNode->son->sibling->lineno);
+        //     ;
+        // else
+        // {
+        //     if (strcmp(stmtlistNode->name, "RC") == 0)
+        //     {
+        //         if (strcmp(compstNode->son->sibling->name, "StmtList") == 0)
+        //             stmtlistNode = compstNode->son->sibling;
+        //         else if (newsym.symuni.func.ret.kind != BASIC || newsym.symuni.func.ret.u.basic != 0)
+        //         {
+        //             // printf("Error type 8 at Line %d: Type mismatched for return.\n",
+        //             //        stmtlistNode->lineno);
+        //             return;
+        //         }
+        //     }
 
-            TreeNode *stmtNode = stmtlistNode->son;
-            while (1)
-            {
-                if (strcmp(stmtNode->son->name, "RETURN") == 0)
-                {
-                    Types type = handle_exp_type(stmtNode->son->sibling);
-                    if (typecmp(type, &newsym.symuni.func.ret) != 0)
-                    {
-                        printf("Error type 8 at Line %d: Type mismatched for return.\n",
-                               stmtNode->lineno);
-                        Semantic_Error = 1;
-                    }
-                }
-                if (stmtNode->sibling == NULL)
-                    break;
-                else
-                    stmtNode = stmtNode->sibling->son;
-            }
-        }
+        //     TreeNode *stmtNode = stmtlistNode->son;
+        //     while (1)
+        //     {
+        //         if (strcmp(stmtNode->son->name, "RETURN") == 0)
+        //         {
+        //             Types type = handle_exp_type(stmtNode->son->sibling);
+        //             if (typecmp(type, &newsym.symuni.func.ret) != 0)
+        //             {
+        //                 printf("Error type 8 at Line %d: Type mismatched for return.\n",
+        //                        stmtNode->lineno);
+        //                 Semantic_Error = 1;
+        //             }
+        //         }
+        //         if (stmtNode->sibling == NULL)
+        //             break;
+        //         else
+        //             stmtNode = stmtNode->sibling->son;
+        //     }
+        // }
     }
     else if (strcmp(Node->son->sibling->name, "ExtDecList") == 0)
     {

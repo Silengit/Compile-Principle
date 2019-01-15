@@ -46,7 +46,7 @@ Program :
         if(Lex_Error == 0 && Bison_Error == 0){
             scan_tree(root_idx);
             if(Semantic_Error == 0)
-                scan_ir_tree(root_idx);
+                process(root_idx);
         }
         //if(Lex_Error == 0 && Bison_Error == 0)
         //    scan_tree(root_idx);

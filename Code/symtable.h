@@ -109,6 +109,8 @@ Symbols init_symbol_var(TreeNode *typeNode, TreeNode *idNode, int select);
 Symbols init_array(TreeNode *typeNode, TreeNode *idNode, int select);
 Struct init_struct(TreeNode *defList, TreeNode *idNode);
 void handle_extdef(TreeNode *Node);
+void handle_compstmt(TreeNode *CompSt, Symbols ret);
+void handle_stmt(TreeNode *Stmt, Symbols ret);
 FieldList handle_def(TreeNode *Node, int select);
 FieldList handle_arg(TreeNode *Node);
 void handle_struct(TreeNode *Node);
