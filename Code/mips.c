@@ -878,6 +878,7 @@ void fprint_target_code(struct InterCode ic, FILE *f)
     case CALLFUNC:
 
         allreg2mem(f);
+        //para_ctr = arg_ctr; //reverse
         arg_ctr = 0;
 
         if(ic.u.call_func.op->kind == ADDRESS){
@@ -904,7 +905,8 @@ void fprint_target_code(struct InterCode ic, FILE *f)
         fprintf(f, "subu $sp, $sp, %d\n", FRAME_SIZE);
         fprintf(f, "addi $fp, $sp, %d\n", FRAME_SIZE + 8);
 
-        para_ctr = 0;//compute para_num;
+        para_ctr = compute_para_num(ic.u.fun);//compute para_num;
+        //printf("you have come here!\npara_ctr: %d\n",para_ctr);
 
         break;
     case ARG:
@@ -928,24 +930,43 @@ void fprint_target_code(struct InterCode ic, FILE *f)
         }
         break;
     case PARAM:
-        if(para_ctr <= 3)
+        if(para_ctr <= 4)
         {
+            para_ctr--;
             l_reg = get_reg(ic.u.param.op, f);
             fprintf(f, "move ");
             fprint_reg(l_reg, f);
             fprintf(f, ", $a%d\n", para_ctr);
-            para_ctr++;
+            //printf("para_ctr: %d\n", para_ctr);
         }
         else
         {
+            para_ctr--;
             l_reg = get_reg(ic.u.param.op, f);
             fprintf(f, "lw ");
             fprint_reg(l_reg, f);
             fprintf(f, ", %d($fp)\n", (para_ctr-3) * 4);
-            para_ctr++;
             // printf("TODO: parameters are too many!\n");
             // return;
         }
+        // if(para_ctr >= 0)
+        // {
+        //     l_reg = get_reg(ic.u.param.op, f);
+        //     fprintf(f, "move ");
+        //     fprint_reg(l_reg, f);
+        //     fprintf(f, ", $a%d\n", para_ctr);
+        //     para_ctr--;
+        // }
+        // else
+        // {
+        //     l_reg = get_reg(ic.u.param.op, f);
+        //     fprintf(f, "lw ");
+        //     fprint_reg(l_reg, f);
+        //     fprintf(f, ", %d($fp)\n", (para_ctr-3) * 4);
+        //     para_ctr++;
+        //     // printf("TODO: parameters are too many!\n");
+        //     // return;
+        // }
         break;
     case REFASSIGN:
         if(ic.u.refass.left->kind != TEMP)

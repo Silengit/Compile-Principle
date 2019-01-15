@@ -129,4 +129,5 @@ Types handle_struct_in_exp(TreeNode *expNode);
 Types handle_array_in_exp(TreeNode *expNode);
 Types compute_array_type(TreeNode *expNode);
 int typecmp(Types t1, Types t2);
+int compute_para_num(char *funcname);
 #endif

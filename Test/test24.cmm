@@ -1,18 +1,16 @@
-int judge(int x, int y)
+int max(int a1, int a2)
 {
-    if(x > y)
-        return x-y;
+    if(a1 > a2)
+        return a1;
     else
-        return x+y;
+        return a2;
 }
-
 
 int main()
 {
-    int i, j, result;
-    i = read();
-    j = read();
-    result = judge(i, j);
-    write(result);
+    int b1 = 1, b2 = 2, b3 = 3;
+    int x;
+    x = max(max(b1, b2), b3);
+    write(x);
     return 0;
 }

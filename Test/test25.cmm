@@ -1,0 +1,48 @@
+int max(int b1, int b2)
+{
+    if(b1 > b2)
+        return b1;
+    else
+        return b2;
+}
+
+int get_max(int a1, int a2, int a3, int a4, int a5, int a6, int a7, int a8, int a9, int a10)
+{
+    int t_max = -9999;
+    write(a1);
+    write(a2);
+    write(a3);
+    write(a4);
+    write(a5);
+    write(a6);
+    write(a7);
+    write(a8);
+    write(a9);
+    write(a10);
+    /*t_max = max(t_max, a1);
+    t_max = max(t_max, a2);
+    t_max = max(t_max, a3);
+    t_max = max(t_max, a4);
+    t_max = max(t_max, a5);
+    t_max = max(t_max, a6);
+    t_max = max(t_max, a7);
+    t_max = max(t_max, a8);
+    t_max = max(t_max, a9);
+    t_max = max(t_max, a10);*/
+    t_max = max(max(max(max(max(max(max(max(max(a1, a2), a3), a4), a5), a6), a7), a8), a9), a10);
+    return t_max;
+}
+
+int main()
+{
+    int arr[10];
+    int i = 0;
+    while(i < 10)
+    {
+        arr[i] = read();
+        i = i + 1;
+    }
+    i = get_max(arr[0], arr[1], arr[2], arr[3], arr[4], arr[5], arr[6], arr[7], arr[8], arr[9]);
+    write(i);
+    return 0;
+}

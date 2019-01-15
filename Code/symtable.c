@@ -1388,3 +1388,22 @@ int typecmp(Types t1, Types t2)
         }
     }
 }
+
+int compute_para_num(char *funcname)
+{
+    int idx = look_up_name(funcname);
+    if(idx == -1)
+    {
+        perror("function doesn't exist!\n");
+        return -1;
+    }
+    
+    int n = 0;
+    FieldList ptr = sym_tbl.symbols[idx].symuni.func.args;
+    while(ptr != NULL)
+    {
+        n++;
+        ptr = ptr->tail;
+    }
+    return n;
+}
