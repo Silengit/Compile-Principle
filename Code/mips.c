@@ -876,7 +876,6 @@ void fprint_target_code(struct InterCode ic, FILE *f)
         fprintf(f, "\njal write\n");
         break;
     case CALLFUNC:
-
         allreg2mem(f);
         //para_ctr = arg_ctr; //reverse
         arg_ctr = 0;
@@ -949,24 +948,6 @@ void fprint_target_code(struct InterCode ic, FILE *f)
             // printf("TODO: parameters are too many!\n");
             // return;
         }
-        // if(para_ctr >= 0)
-        // {
-        //     l_reg = get_reg(ic.u.param.op, f);
-        //     fprintf(f, "move ");
-        //     fprint_reg(l_reg, f);
-        //     fprintf(f, ", $a%d\n", para_ctr);
-        //     para_ctr--;
-        // }
-        // else
-        // {
-        //     l_reg = get_reg(ic.u.param.op, f);
-        //     fprintf(f, "lw ");
-        //     fprint_reg(l_reg, f);
-        //     fprintf(f, ", %d($fp)\n", (para_ctr-3) * 4);
-        //     para_ctr++;
-        //     // printf("TODO: parameters are too many!\n");
-        //     // return;
-        // }
         break;
     case REFASSIGN:
         if(ic.u.refass.left->kind != TEMP)
@@ -989,7 +970,6 @@ void fprint_target_code(struct InterCode ic, FILE *f)
             perror("Refassign's right must have declared!\n");
             return;
         }
-
         res_reg = get_reg(ic.u.refass.left, f);
         fprintf(f, "addi ");
         fprint_reg(res_reg, f);
